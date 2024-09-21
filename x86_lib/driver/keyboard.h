@@ -1,0 +1,64 @@
+#ifndef _KEYBOARD_HEADER_
+#define _KEYBOARD_HEADER_
+
+#include <stdint.h>
+
+#define KEYBOARD_BUTTON_PRESS 0x01
+#define KEYBOARD_BUTTON_RELEASE 0x02
+
+enum ScanCodeType {
+    SCANCODE_ESCAPE = 0x01,
+    SCANCODE_1,
+    SCANCODE_2,
+    SCANCODE_3,
+    SCANCODE_4,
+    SCANCODE_5,
+    SCANCODE_6,
+    SCANCODE_7,
+    SCANCODE_8,
+    SCANCODE_9,
+    SCANCODE_0,
+    SCANCODE_MINUS,
+    SCANCODE_EQUAL,
+    SCANCODE_BACKSPACE,
+    SCANCODE_TAB,
+    SCANCODE_Q,
+    SCANCODE_W,
+    SCANCODE_E,
+    SCANCODE_R,
+    SCANCODE_T,
+    SCANCODE_Y,
+    SCANCODE_U,
+    SCANCODE_I,
+    SCANCODE_O,
+    SCANCODE_P,
+    SCANCODE_OPENBRACKET,
+    SCANCODE_CLOSEBRACKET,
+    SCANCODE_ENTER,
+    SCANCODE_LEFT_CTRL,
+    SCANCODE_A,
+    SCANCODE_S,
+    SCANCODE_D,
+    SCANCODE_F,
+    SCANCODE_G,
+    SCANCODE_H,
+    SCANCODE_J,
+    SCANCODE_K,
+    SCANCODE_L,
+    SCANCODE_SEMICOLOM,
+    SCANCODE_SINGLE_QUOTE,
+    SCANCODE_BACK_TICK,
+    SCANCODE_LEFT_SHIFT,
+    SCANCODE_STROKE,
+    SCANCODE_Z,
+    SCANCODE_X,
+    SCANCODE_C,
+    SCANCODE_V,
+    SCANCODE_B
+};
+
+typedef void (*KeyboardCallBack)(uint8_t scancode, char key, uint8_t button);
+void Keyboard_Initialize();
+void AddKeyboardHandler(KeyboardCallBack handler);
+
+#endif
