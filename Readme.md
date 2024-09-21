@@ -1,6 +1,4 @@
-============================================================================
-                            Hello, World From MYOS
-=============================================================================
+Hello, World From MYOS
 
 This is my own project to making own OS ( Operating System ) with Source Code from Google like osdev, github and the powerful tools, ChatGPT help me to build this project..
 
