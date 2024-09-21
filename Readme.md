@@ -1,5 +1,7 @@
 Hello, World From MYOS
 
+"DONT USE AT REAL MACHINE, USE VIRTUAL MACHINE LIKE QEMU!!!"
+
 This is my own project to making own OS ( Operating System ) with Source Code from Google like osdev, github and the powerful tools, ChatGPT help me to build this project..
 
 I`m student and I want to know everything about OS...
@@ -14,3 +16,5 @@ To build and Run this project:
     - make run ( For Runing virtual emulator )
 
 I hope this project can improve my programming skill and learning more about OS.
+
+
