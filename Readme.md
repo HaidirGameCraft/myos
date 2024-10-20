@@ -2,7 +2,7 @@ Hello, World From MYOS
 
 "DONT USE AT REAL MACHINE, USE VIRTUAL MACHINE LIKE QEMU!!!"
 
-This is my own project to making own OS ( Operating System ) with some source code from Google like osdev and ChatGPT to help me build this project..
+This is my own project to making own OS ( Operating System ) from scratch
 
 I`m student and I want to know everything about OS...
 
