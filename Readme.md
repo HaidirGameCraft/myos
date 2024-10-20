@@ -1,3 +1,5 @@
+========================== OLD ==================================
+
 Hello, World From MYOS
 
 "DONT USE AT REAL MACHINE, USE VIRTUAL MACHINE LIKE QEMU!!!"
