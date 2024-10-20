@@ -50,6 +50,7 @@ int GetHeightVideo();
 void ClearScreen( uint32_t color );
 void PutPixel(int x, int y, uint32_t color );
 uint32_t GetPixel(int x, int y );
+void *GetPixels(int x, int y);
 void FillRect(int x, int y, int width, int height, uint32_t color );
 void FillCircle(int x, int y, int radius, uint32_t color);
 

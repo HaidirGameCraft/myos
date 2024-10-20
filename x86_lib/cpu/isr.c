@@ -2,7 +2,12 @@
 #include "idt.h"
 #include <timer.h>
 #include <stdio.h>
+#include <string.h>
+#include <memory.h>
+#include <vesa.h>
 #include <driver/keyboard.h>
+
+extern void syscall_asm();
 
 uint32_t interrupt_handler[256];
 
@@ -42,6 +47,8 @@ void Install_ISR_And_IRQ() {
     Set_IDT_Gate(30, (uint32_t) &ISR30, 0x8E);
     Set_IDT_Gate(31, (uint32_t) &ISR31, 0x8E);
 
+    // Syscall
+
     remapPIC();
 
     Set_IDT_Gate(32, (uint32_t) &IRQ32, 0x8E);
@@ -60,6 +67,7 @@ void Install_ISR_And_IRQ() {
     Set_IDT_Gate(45, (uint32_t) &IRQ45, 0x8E);
     Set_IDT_Gate(46, (uint32_t) &IRQ46, 0x8E);
     Set_IDT_Gate(47, (uint32_t) &IRQ47, 0x8E);
+    Set_IDT_Gate(128, (uint32_t) &syscall_asm, 0x8E);
 
     Initialize_IDT();
 }
@@ -125,9 +133,21 @@ void Register_Interrupt(uint8_t number, isr_t handler) {
 }
 
 void ISR_Handler(register_t reg) {
-    print("Interrupt Code: ");
-    print(exception_message[reg.int_no]);
-    print("\n");
+
+    if( interrupt_handler[reg.int_no] != NULL ) {
+        isr_t handler = (isr_t) interrupt_handler[reg.int_no];
+        handler( reg );
+    } else {
+        char* val = itos(reg.int_no);
+
+        print("Interrupt Code: ");
+        print(exception_message[reg.int_no]);
+        print(", Code: ");
+        print( val );
+    
+        free( val );
+        print("\n");
+    }
     return;
 }
 

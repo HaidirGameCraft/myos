@@ -31,6 +31,11 @@ uint32_t GetPixel(int x, int y) {
     return color;
 }
 
+void *GetPixels(int x, int y) {
+    int index = (x + y * width_screen) * bytes_per_pixel;
+    return ( void* ) &framebuffer[ index ];
+}
+
 void ClearScreen( uint32_t color ) {
     for( int y = 0; y < height_screen; y++ ) {
         for( int x = 0; x < width_screen; x++ ) {

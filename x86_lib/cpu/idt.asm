@@ -30,6 +30,32 @@ ISR_STUB:
     STI
     IRET
 
+
+global syscall_asm
+syscall_asm:
+    pusha
+
+    mov eax, ds
+    push eax
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+[extern syscall_handler]
+    call syscall_handler
+    
+    pop eax
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    popa
+;    mov eax, store_eax
+   iret
+
 IRQ_STUB:
     PUSHA
     MOV EAX, DS
@@ -122,3 +148,6 @@ IRQ 44, 12
 IRQ 45, 13
 IRQ 46, 14
 IRQ 47, 15
+
+section .data
+store_eax: dd 0

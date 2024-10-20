@@ -1,0 +1,16 @@
+; PRINT - PRINT THE STRING/TEXT INTO BIOS
+; SI - TEXT BUFFER
+PRINT:
+    XOR AX, AX
+    MOV AH, 0X0E
+.LOOP:
+    MOV AL, BYTE [SI]
+    INC SI
+    
+    CMP AL, 0X00
+    JZ .DONE 
+
+    INT 0X10
+    JMP .LOOP
+.DONE:
+    RET

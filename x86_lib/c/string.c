@@ -19,6 +19,21 @@ void memempty(void* _dest, uint32_t size) {
     }
 }
 
+void strtrim( char* str ) {
+    int length = strlen( str );
+    for(int i = 0; i < length; i++) {
+        if( str[i] >= 32 && str[i] < 127 ) continue;
+
+        for(int j = i; j < length; j++) {
+            if( j < length && str[j] >= 32 && str[j] < 127) {
+                str[i] = str[j];
+                str[j] = 0;
+                break;
+            }
+        }
+    }
+}
+
 
 int strlen(char* str) {
     int count = 0;
@@ -97,6 +112,10 @@ char* itos(int value) {
         tmp /= 10;
     }
 
+    if( !value ) {
+        buffer[i++] = '0';
+    }
+
     if( sign == -1 ) buffer[i++] = '-';
     buffer[i] = '\0';
 
@@ -112,7 +131,10 @@ void strappend( char* buffer, char val ) {
 }
 
 char words_hex[] = "0123456789ABCDEF";
-void htos(int value, char* buffer) {
+char* htos(int value) {
+    char* buffer = (char*) malloc( sizeof(uint32_t) * 2 + 1);
+    memset(buffer, 0, sizeof(uint32_t) * 2 + 1);
+    memset(buffer, '0', sizeof(uint32_t) * 2);
     int tmp = value, i = 0;
     
     while( tmp > 0 ) {
@@ -120,14 +142,14 @@ void htos(int value, char* buffer) {
         tmp >>= 4;
     }
 
-    buffer[i++] = 'x';
-    buffer[i++] = '0';
-    buffer[i] = 0x0;
-
     strreverse( buffer );
+    return buffer;
 }
 
-void uhtos(uint32_t value, char* buffer) {
+char* uhtos(uint32_t value) {
+    char* buffer = (char*) malloc( sizeof(uint32_t) * 2 + 1);
+    memset(buffer, 0, sizeof(uint32_t) * 2 + 1);
+    memset(buffer, '0', sizeof(uint32_t) * 2);
     uint32_t tmp = value, i = 0;
     
     while( tmp > 0 ) {
@@ -135,10 +157,19 @@ void uhtos(uint32_t value, char* buffer) {
         tmp >>= 4;
     }
 
-    buffer[i++] = 'x';
-    buffer[i++] = '0';
-    buffer[i] = 0x0;
+    strreverse( buffer );
+    return buffer;
+}
 
+void s_uhtos(uint32_t value, void* buffer) {
+    uint32_t tmp = value, i = 0;
+    
+    while( tmp > 0 ) {
+        ((uint8_t*) buffer)[i++] = words_hex[(tmp % 16) & 0xF];
+        tmp >>= 4;
+    }
+
+    ((char*) buffer)[i] = '\0';
     strreverse( buffer );
 }
 
@@ -173,6 +204,34 @@ char tolowercase(char c) {
     }
 
     return c;
+}
+
+char* strlowercase(char* str){
+    int size = strlen( str );
+    for(int i = 0; i < size; i++) {
+        str[i] = tolowercase( str[i] );
+    }
+    return str;
+}
+char* struppercase(char* str){
+    int size = strlen( str );
+    for(int i = 0; i < size; i++) {
+        str[i] = touppercase( str[i] );
+    }
+    return str;
+}
+
+char* sstrlowercase(char* str, int size) {
+    for(int i = 0; i < size; i++) {
+        str[i] = tolowercase( str[i] );
+    }
+    return str;
+}
+char* sstruppercase(char* str, int size) {
+    for(int i = 0; i < size; i++) {
+        str[i] = touppercase( str[i] );
+    }
+    return str;
 }
 
 char* strsplit(const char* text, char _reg_) {

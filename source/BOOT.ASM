@@ -42,19 +42,21 @@ BOOT_START:
     MOV SI, TEXT_MESSAGE_BIOS
     CALL PRINT
 
-    MOV AX, 2
-    MOV CX, 30
-    MOV BX, 0X1000
+    mov ax, 236
+    mov cx, 30
+    mov bx, 0x1000
     CALL READ_SECTOR
 
-    ; mov ax, 0x4f02
-    ; mov cx, 0x203
-    ; int 0x10
+    MOV SI, Run_Program
+    CALL PRINT
 
-    ; mov ax, 0x0012
-    ; int 10h
+    mov ax, 2
+    mov cx, 15
+    mov bx, 0x1000
+    call READ_SECTOR
 
-    JMP 0X1000
+
+    jmp 0x1000
 
     HLT
     JMP $
@@ -72,19 +74,16 @@ READ_SECTOR:
     PUSH DX
 
     PUSHA
-    XOR DX, DX
-    MOV CX, [Sector_Per_Track]
-    DIV CX
+    xor dx, dx
+    div word [Sector_Per_Track]
+    
+    inc dx
+    mov byte [ABS_SECTOR], dl
+    xor dx, dx
+    div word [Number_Of_Heads]
 
-    INC DL
-    MOV BYTE [ABS_SECTOR], DL
-
-    XOR DX, DX
-    MOV CX, [Number_Of_Heads]
-    DIV CX
-
-    MOV BYTE [ABS_HEADS], DL
-    MOV BYTE [ABS_CYLINDER], AL
+    mov byte [ABS_HEADS], dl
+    mov byte [ABS_CYLINDER], al
 
     POPA
 
@@ -135,15 +134,16 @@ READ_SECTOR:
     
 
 cluster: dw 0
+DataSectorStart: dw 0
 ABS_SECTOR: DB 0
 ABS_HEADS: DB 0
 ABS_CYLINDER DB 0
 OS_FILE: db "OS      SYS"
 
 TEXT_MESSAGE_BIOS: DB "OS DOS FROM HAIDIR...", 0XD, 0XA, 0X0
+Run_Program: db "Run Program", 0xd,0xa, 0x0
 test: DB "TEST...", 0xd, 0xa, 0x0
 ERROR_LOAD_DISK: DB "ERROR LOAD DISK...", 0XD, 0XA, 0X0
 
 TIMES 510-($-$$) DB 0
 DW 0XAA55
-buffer:

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <driver/vga.h>
+#include <fat.h>
 
 bool_t EXIT = FALSE;
 
@@ -34,5 +35,7 @@ void CMD_Command(char* buffer) {
         }
         print("\n");
         print("\n");
+    } else if ( strncmp(buffer, "ls", 2) == 0 ) {
+        FAT_ShowListDirectory();
     }
 }
