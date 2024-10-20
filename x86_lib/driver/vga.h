@@ -14,6 +14,7 @@ void VGA_FillCircle(int x, int y, int radius, uint8_t color);
 
 void VGA_ScrollUp();
 void Text_Reset();
+
 void PutChar(char c);
 
 void VGA_SetCursorPosition(int x, int y);

@@ -65,4 +65,6 @@ void Install_ISR_And_IRQ();
 void Install_Interrupt();
 void Register_Interrupt(uint8_t number, isr_t handler);
 
+void syscall_handler(register_t reg);
+
 #endif

@@ -1,2 +1,5 @@
 .vscode
 ctools
+build
+MYOS.DISK
+MYOS.IMG

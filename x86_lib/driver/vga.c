@@ -1,5 +1,6 @@
 #include "vga.h"
 #include <cmath.h>
+#include <string.h>
 #include <vesa.h>
 #include <font.h>
 
@@ -155,14 +156,10 @@ void VGA_ScrollUp() {
     }
 #elif defined(__VGA_VIDEO_MODE__)
 
-    for(int y = 0; y < vbe_ptr->height - 16; y++) {
-        for(int x = 0; x < vbe_ptr->width; x++) {
-            int index = (x + y * vbe_ptr->width);
-            int target = (x + (y + 16) * vbe_ptr->width);
-
-            uint32_t color = GetPixel( x, y + 16 );
-            PutPixel( x, y, color );
-        }
+    for(int y = 0; y < vbe_ptr->height - 16; y += 16) {
+        void *addr = GetPixels(0, y + 16);
+        void *target = GetPixels(0, y);
+        memcpy(target, addr, 16 * vbe_ptr->width * 4); 
     }
 
     for(int y = vbe_ptr->height - 16; y < vbe_ptr->height; y++) {
@@ -224,29 +221,6 @@ end_print_char:
         return;
     } else if ( c == 0 ) {
         return;
-    } else if ( c == 0x08 ) {
-        vga_column--;
-        if( vga_column == 0 && vga_line > 0) {
-            vga_column = WIDTH_CHAR;
-            vga_line--;
-        }
-
-        uint8_t* bitmap = Font_GetChar(' ');
-        for(int y = 0; y < 16; y++) {
-            int local_y = vga_line * 16 + y;
-            for(int x = 0; x < 8; x++) {
-                int local_x = vga_column * 8 + x;
-
-                uint8_t l = (bitmap[y] >> (7 - x)) & 0x1;
-                if( l == 1 ) {
-                    PutPixel(local_x, local_y, 0x00FFFFFF);
-                } else {
-                    PutPixel(local_x, local_y, 0x00000000);
-                }
-            }
-        }
-        goto end_print_char;
-        return;
     }
 
     uint8_t* bitmap = Font_GetChar(c);
@@ -274,6 +248,39 @@ end_print_char:
         vga_line--;
     }
 #endif
+}
+
+void Text_Backspace() {
+    vga_column--;
+    if( vga_column == 0 && vga_line > 0) {
+        vga_column = WIDTH_CHAR;
+        vga_line--;
+    }
+
+    uint8_t* bitmap = Font_GetChar(' ');
+    for(int y = 0; y < 16; y++) {
+        int local_y = vga_line * 16 + y;
+        for(int x = 0; x < 8; x++) {
+            int local_x = vga_column * 8 + x;
+
+            uint8_t l = (bitmap[y] >> (7 - x)) & 0x1;
+            if( l == 1 ) {
+                PutPixel(local_x, local_y, 0x00FFFFFF);
+            } else {
+                PutPixel(local_x, local_y, 0x00000000);
+            }
+        }
+    }
+
+    int index = vga_column + vga_line * WIDTH_CHAR;
+    vga_column = index % WIDTH_CHAR;
+    vga_line = (int)( index / WIDTH_CHAR);
+
+    if( vga_line >= HEIGHT_CHAR )
+    {
+        VGA_ScrollUp();
+        vga_line--;
+    }
 }
 
 void VGA_SetCursorPosition(int x, int y) {

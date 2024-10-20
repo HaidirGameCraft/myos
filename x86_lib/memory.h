@@ -12,4 +12,6 @@ void free( void* ptr );
 
 int size_memory(void* ptr);
 
+#define CREATE_ALLOC(type, size)( (type) malloc(size) )
+
 #endif
