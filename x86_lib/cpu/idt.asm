@@ -36,21 +36,27 @@ syscall_asm:
     pusha
 
     mov eax, ds
-    push eax
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
+    push eax 
+    mov ax, 0x10 
+    mov ds, ax 
+    mov es, ax 
+    mov fs, ax 
     mov gs, ax
 
 [extern syscall_handler]
     call syscall_handler
-    
+
     pop eax
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
+    mov ds, ax 
+    mov es, ax 
+    mov fs, ax 
+    mov gs, ax 
+
+;    pop eax
+;    mov ds, ax
+;    mov es, ax
+;    mov fs, ax
+;    mov gs, ax
 
     popa
 ;    mov eax, store_eax

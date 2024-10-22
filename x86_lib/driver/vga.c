@@ -18,6 +18,7 @@ int vga_line = 0;
 uint16_t* vga_chars = (uint16_t*) _VGA_CHAR_ADDRESS_;
 uint8_t* vga_video = (uint8_t*) _VGA_VIDEO_ADDRESS_;
 uint16_t vga_color = 0x0F00;
+uint32_t text_color = 0x00FFFFFF;
 
 void VGA_ClearScreen(uint8_t color) {
 #if defined(__VGA_TEXT_MODE__)
@@ -231,7 +232,7 @@ end_print_char:
 
             uint8_t l = (bitmap[y] >> (7 - x)) & 0x1;
             if( l == 1 ) {
-                PutPixel(local_x, local_y, 0x00FFFFFF);
+                PutPixel(local_x, local_y, text_color);
             }
         }
     }
@@ -250,6 +251,14 @@ end_print_char:
 #endif
 }
 
+void SetTextColor(uint32_t color) {
+    text_color = color;
+}
+
+void SetTextColorDef() {
+    text_color = 0x00FFFFFF;
+}
+
 void Text_Backspace() {
     vga_column--;
     if( vga_column == 0 && vga_line > 0) {
@@ -265,7 +274,7 @@ void Text_Backspace() {
 
             uint8_t l = (bitmap[y] >> (7 - x)) & 0x1;
             if( l == 1 ) {
-                PutPixel(local_x, local_y, 0x00FFFFFF);
+                PutPixel(local_x, local_y, text_color);
             } else {
                 PutPixel(local_x, local_y, 0x00000000);
             }

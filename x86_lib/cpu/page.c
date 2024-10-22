@@ -1,5 +1,5 @@
 #include <page.h>
-#include <memory.h>
+#include <kmem.h>
 #include <string.h>
 #include <stdio.h>
 #include <cpu/isr.h>

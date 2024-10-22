@@ -4,7 +4,7 @@
 #include <timer.h>
 #include <cmd.h>
 #include <fat.h>
-#include <memory.h>
+#include <kmem.h>
 #include <cpu/isr.h>
 #include <driver/vga.h>
 #include <cpu/gdt.h>
@@ -12,6 +12,9 @@
 #include <vesa.h>
 #include <elf.h>
 #include <driver/keyboard.h>
+
+#define KERNEL_HEAP_START   0x03000000
+#define KERNEL_HEAP_END     0x04000000
 
 void user_keyboard(uint8_t scancode, char key, uint8_t button);
 char *user_input_buffer;
@@ -24,32 +27,11 @@ extern void _heap_end();
 
 typedef void (*main_func)();
 
-void* load_binary_file(uint32_t physical_address, uint8_t* binary_buffer, uint32_t size);
+void Kernel_Setup(VBE_Mode_Info* vbe_info);
 
 void kernel_main(VBE_Mode_Info* vbe_info) {
 
-    Initialize_VBE_Info( vbe_info );
-    ClearScreen(0x00000000);
-
-    print("[ Install ] Initialize GDT ");
-    Initialize_GDT();
-    println(" [ DONE ] ");
-
-    print("[ Install ] Installing ISR And IRQ...");
-    Install_ISR_And_IRQ();  
-    println(" [ DONE ] ");
-
-//    Initialize_Paging();
-
-    print("[ Initialize ] Heap...");
-    initialize_heap();
-    println(" [ DONE ] ");
-    
-    print("[ Install ] Installing Interrupt...");
-    Install_Interrupt();
-    println(" [ DONE ] ");
-
-    Initialize_Paging();
+    Kernel_Setup( vbe_info );
 
     FAT_Initialize();
     CMD_Initialize();
@@ -58,7 +40,7 @@ void kernel_main(VBE_Mode_Info* vbe_info) {
     memcpy( VOLUME_NAME, info->volume_name, 11 );
 
     print("[ Keyboard ] Add Keyboard Handle\n");
-    user_input_buffer = (char*) malloc( 1024 );
+    user_input_buffer = (char*) kmalloc( 1024 );
     memset( user_input_buffer, 0, 1024 );
     AddKeyboardHandler( user_keyboard );
 
@@ -78,6 +60,22 @@ void kernel_main(VBE_Mode_Info* vbe_info) {
     print("\n");
 
     printf("%s>", VOLUME_NAME);
+
+    char* test_1 = (char*) kmalloc(5);
+    printf("Address Buffer test 1: 0x%x\n", test_1);
+    char* test_2 = (char*) kmalloc(10);
+    printf("Address Buffer test 2: 0x%x\n", test_2);
+    char* test_3 = (char*) kmalloc(10);
+    printf("Address Buffer test 3: 0x%x\n", test_3);
+    kfree( test_2);
+    test_2 = (char*) kmalloc(5);
+    printf("Address Buffer new test 2: 0x%x\n", test_2 );
+
+    kfree( test_1 );
+    kfree( test_2 );
+    kfree(test_3);
+
+    printf("Hello,\\color:00f World\n");
 
 
     // uint8_t* binary = FAT_LoadFile("prog.bin");
@@ -102,38 +100,25 @@ void user_keyboard(uint8_t scancode, char key, uint8_t button) {
             CMD_Command( user_input_buffer );
 
             if( strncmp(user_input_buffer, "mmsize", 6) == 0 ) {
-                char* s = uhtos(_heap_start);
-                print("Memory Heap Start: ");
-                println( s );
-                free(s);
-
-                s = uhtos(_heap_end);
-                print("Memory Heap End: ");
-                println( s );
-                free(s);
-
-                s = uhtos(_heap_end - _heap_start);
-                print("Memory Heap Range: ");
-                println( s );
-                free(s);
+                printf("Memory Heap Start: 0x%x\n", KERNEL_HEAP_START);
+                printf("Memory Heap End: 0x%x\n", KERNEL_HEAP_END);
+                printf("Memory Heap Range: 0x%x (%i)\n", KERNEL_HEAP_END - KERNEL_HEAP_START, KERNEL_HEAP_END - KERNEL_HEAP_START);
             } else if ( strncmp(user_input_buffer, "read", 4) == 0 ) {
                 FileDirectory* file = FAT_FindFile( user_input_buffer + 5 );
                 printf("Address: 0x%x\n", file);
                 char* r = FAT_ReadFile( file );
                 println( r );
-                free( r );
-                free( file );
+                kfree( r );
+                kfree( file );
             } else if ( strncmp(user_input_buffer, "hwinfo", 6) == 0 ) {
                 
                 char* s = uhtos( vbe_ptr->physical_address);
                 print("Framebuffer Address: ");
                 println( s );
-                free(s);
+                kfree(s);
             } else if ( strncmp(user_input_buffer, "exec", 4) == 0 ) {
                 FileDirectory* program_file = FAT_FindFile( user_input_buffer + 5 );
-
                 char* program = FAT_ReadFile( program_file );
-                //char* program = FAT_LoadFile(user_input_buffer + 5);
                 void* entry = elf_load_file( program );
 
                 int (*entry_)() = (int (*)()) entry;
@@ -142,7 +127,7 @@ void user_keyboard(uint8_t scancode, char key, uint8_t button) {
                 printf("Program has ended with (0x%x)\n", r);
                 elf_clear( program );
                 FAT_FreeFile( program );
-                free( program_file );
+                kfree( program_file );
             }
 
             memset(user_input_buffer, 0, 1024);
@@ -163,7 +148,26 @@ void user_keyboard(uint8_t scancode, char key, uint8_t button) {
     }
 }
 
-void *load_binary_file(uint32_t physical_address, uint8_t* binary_buffer, uint32_t size) {
-    memcpy((void*)physical_address, binary_buffer, size);
-    return (void*) physical_address;
+void Kernel_Setup(VBE_Mode_Info* vbe_info) {
+    Initialize_VBE_Info( vbe_info );
+    ClearScreen(0x00000000);
+
+    printf("[ Initialize ] Initialize Kernel Heap ");
+    kheap_initialize(KERNEL_HEAP_START, KERNEL_HEAP_END);
+    printf(" [\\color:0f0 DONE \\color:fff] \n");
+
+    printf("[\\color:0f0 Install \\color:fff] Initialize GDT ");
+    Initialize_GDT();
+    printf(" [\\color:0f0 DONE \\color:fff] \n");
+
+    printf("[\\color:0f0 Install \\color:fff] Installing ISR And IRQ...");
+    Install_ISR_And_IRQ();  
+    printf(" [\\color:0f0 DONE \\color:fff] \n");
+
+    
+    printf("[\\color:0f0 Install \\color:fff] Installing Interrupt...");
+    Install_Interrupt();
+    printf(" [\\color:0f0 DONE \\color:fff] \n");
+
+    Initialize_Paging();
 }

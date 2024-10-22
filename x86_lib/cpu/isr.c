@@ -3,7 +3,7 @@
 #include <timer.h>
 #include <stdio.h>
 #include <string.h>
-#include <memory.h>
+#include <kmem.h>
 #include <vesa.h>
 #include <driver/keyboard.h>
 
@@ -145,7 +145,7 @@ void ISR_Handler(register_t reg) {
         print(", Code: ");
         print( val );
     
-        free( val );
+        kfree( val );
         print("\n");
     }
     return;

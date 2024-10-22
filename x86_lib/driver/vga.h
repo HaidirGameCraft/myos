@@ -13,6 +13,8 @@ void VGA_DrawLine(int x0, int y0, int x1, int y1, uint8_t color);
 void VGA_FillCircle(int x, int y, int radius, uint8_t color);
 
 void VGA_ScrollUp();
+void SetTextColor(uint32_t color);
+void SetTextColorDef();
 void Text_Reset();
 
 void PutChar(char c);

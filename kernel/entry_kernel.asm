@@ -34,6 +34,9 @@ _START:
 
     [extern clear_heap]
     call clear_heap
+
+    [extern kheap_clear]
+    call kheap_clear
     
     HLT
     JMP $

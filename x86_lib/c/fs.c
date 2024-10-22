@@ -1,5 +1,5 @@
 #include <fs.h>
-#include <memory.h>
+#include <kmem.h>
 
 
 FILE* fs_open(const char* path) {

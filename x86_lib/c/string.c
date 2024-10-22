@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-#include <memory.h>
+#include <kmem.h>
 #include <driver/vga.h>
 
 void memset(void* _dest, uint8_t _value, uint32_t size) {
@@ -103,7 +103,7 @@ char* itos(int value) {
         length++;
     }
 
-    char* buffer = (char*) malloc( length );
+    char* buffer = (char*) kmalloc( length );
 
     tmp = value;
     int i = 0;
@@ -132,7 +132,7 @@ void strappend( char* buffer, char val ) {
 
 char words_hex[] = "0123456789ABCDEF";
 char* htos(int value) {
-    char* buffer = (char*) malloc( sizeof(uint32_t) * 2 + 1);
+    char* buffer = (char*) kmalloc( sizeof(uint32_t) * 2 + 1);
     memset(buffer, 0, sizeof(uint32_t) * 2 + 1);
     memset(buffer, '0', sizeof(uint32_t) * 2);
     int tmp = value, i = 0;
@@ -147,7 +147,7 @@ char* htos(int value) {
 }
 
 char* uhtos(uint32_t value) {
-    char* buffer = (char*) malloc( sizeof(uint32_t) * 2 + 1);
+    char* buffer = (char*) kmalloc( sizeof(uint32_t) * 2 + 1);
     memset(buffer, 0, sizeof(uint32_t) * 2 + 1);
     memset(buffer, '0', sizeof(uint32_t) * 2);
     uint32_t tmp = value, i = 0;
@@ -242,12 +242,12 @@ char* strsplit(const char* text, char _reg_) {
         }
     }
     
-    uint32_t* array = (uint32_t*) malloc( 4 * split_length );
+    uint32_t* array = (uint32_t*) kmalloc( 4 * split_length );
     int location = 0;
     split_length = 0;
     for(int i = 0; i < strlen( text ); i++) {
         if( text[i] == _reg_ ) {
-            char* m = (char*) malloc( i - location );
+            char* m = (char*) kmalloc( i - location );
             memset( m, 0, i - location);
             memcpy( m, text + location, i - location);
             array[split_length] = (uint32_t) m;
@@ -265,8 +265,8 @@ void strsplit_free( char* array ) {
 
     uint32_t* ar = (uint32_t*) array;
     for(int i = 0; i < length; i++) {
-        free( ar[i] );
+        kfree( ar[i] );
     }
 
-    free( array );
+    kfree( array );
 }

@@ -1,6 +1,7 @@
 #include <cpu/isr.h>
 #include <vesa.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <fat.h>
 
 
@@ -13,10 +14,15 @@ void syscall_handler(register_t reg) {
             __asm__ ("hlt");
         break;
     case 0x01: // Read file
-        reg.eax = (uint32_t) FAT_LoadFile((char*)reg.esi);
+    /*
+        uint32_t f = (uint32_t) FAT_FindFile(reg.ebx);
+        reg.eax = (uint32_t) FAT_ReadFile((FileDirectory*) f);
+        ((uint32_t*) reg.edi)[0] = reg.eax;
+        kfree( (void*) f );
+    */
         break;
     case 0x04: // Free FAT File
-        FAT_FreeFile((void*) reg.ebx);
+        FAT_FreeFile((void*) reg.ebx );
         break;
     case 0x10: // Clear Screen with color
         ClearScreen( reg.ebx );
@@ -31,10 +37,11 @@ void syscall_handler(register_t reg) {
         putc( reg.edx );
         break;
     case 0x30: // Malloc
-        reg.eax = (uint32_t) malloc(reg.ebx);
+        reg.eax = (uint32_t) kmalloc(reg.ebx);
+        ((uint32_t*) reg.edi)[0] = reg.eax;
         break;
     case 0x31: // Free Malloc
-        free( reg.ebx );
+        kfree( reg.ebx );
         break;        
     default:
         break;

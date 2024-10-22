@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <memory.h>
+#include <kmem.h>
 #include <string.h>
 #include <elf.h>
 #include <page.h>
@@ -206,7 +206,7 @@ int elf_load_stage1(ELF32_Header * hdr) {
             if( !section->sh_size ) continue;
 
             if( section->sh_flags & SHF_ALLOC ) {
-                void *mem = malloc(section->sh_size);
+                void *mem = kmalloc(section->sh_size);
                 memset(mem, 0, section->sh_size);
 
                 section->sh_offset = (int) mem - (int) hdr;
@@ -214,7 +214,7 @@ int elf_load_stage1(ELF32_Header * hdr) {
                 char *value = itos( section->sh_size );
                 print("Allocate memory for a section ");
                 println( value );
-                free( value );
+                kfree( value );
             }
         }
     }
@@ -253,7 +253,7 @@ int elf_do_reloc(ELF32_Header* hdr, ELF32_Rel* rel, ELF32_Shdr* section) {
     int addr = (int) hdr + target->sh_offset;
     int *ref = (int *)(addr + rel->r_offset);
 
-    uint8_t *c = malloc(20);
+    uint8_t *c = kmalloc(20);
 
     int symval = 0;
     if(ELF32_R_SYM(rel->r_info) != SHN_UNDEF) {

@@ -1,6 +1,6 @@
 #include "keyboard.h"
 #include <cpu/isr.h>
-#include <memory.h>
+#include <kmem.h>
 #include <driver/vga.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,7 +36,7 @@ void Keyboard_Handler(register_t _register_);
 
 void Keyboard_Initialize() {
     Register_Interrupt(33, Keyboard_Handler);
-    keyboard_interrupt = (uint32_t*) malloc( sizeof( uint32_t ) * 128 );
+    keyboard_interrupt = (uint32_t*) kmalloc( sizeof( uint32_t ) * 128 );
     keyboard_interrupt_index = 0;
     memempty( keyboard_interrupt, sizeof( uint32_t ) * 128 );
 }
